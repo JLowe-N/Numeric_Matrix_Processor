@@ -61,6 +61,41 @@ class Matrix:
             print("ERROR")
             return None
 
+    def transpose(self, type):
+        #main diagonal
+        if type == "main_diagonal":
+            matrix = [[] for row in range(self.rows)]
+            for m in range(self.rows):
+                for n in range(self.columns):
+                    matrix[self.rows-1-n].append(self.elements[m].pop())
+            return matrix
+        #side diagonal
+        if type == "side_diagonal":
+            matrix = [[] for row in range(self.rows)]
+            for m in range(self.rows):
+                for n in range(self.columns):
+                    matrix[n].insert(0, self.elements[m].pop()) #pop right-left, append-left when starting new column
+            return matrix
+        #horizontal
+        if type == "horizontal":
+            matrix = []
+            for _ in range(self.rows):
+                matrix.append(self.elements.pop())
+            return matrix
+        #vertical
+        if type == "vertical":
+            matrix = []
+            for i in range(self.rows):
+                row = []
+                for _ in range(self.columns):
+                    row.append(self.elements[i].pop())
+                matrix.append(row)
+            return matrix
+
+
+
+
+
 #matrix_test_1 = Matrix(2,3,[[1,0,17],[15,9,7]])
 #matrix_test_2 = Matrix(3,4,[[5,6,78,9],[29,31,47,1],[14,17,0,3]])
 #print(matrix_test_1 * matrix_test_2)
@@ -106,6 +141,7 @@ while True:
     print("1. Add matrices")
     print("2. Multiply matrix by a constant")
     print("3. Multiply matrices")
+    print("4. Transpose matrix")
     print("0. Exit")
     choice = input('Your choice: ')
 
@@ -121,7 +157,7 @@ while True:
                 print(*row)
 
     if choice == '2':
-        rows, columns, matrix_input = take_matrix_input("Enter size of first matrix: ", "Enter first matrix:")
+        rows, columns, matrix_input = take_matrix_input("Enter matrix size: ", "Enter matrix:")
         matrix_A = create_matrix_object(rows, columns, matrix_input)
         constant = convert_string_to_number(input("Enter constant: "))
         result = matrix_A * constant
@@ -141,6 +177,27 @@ while True:
             print("The result is:")
             for row in result:
                 print(*row)
+
+    if choice == '4':
+        print("1. Main diagonal")
+        print("2. Side diagonal")
+        print("3. Vertical line")
+        print("4. Horizontal line")
+        subchoice_dict = {'1': 'main_diagonal', '2': 'side_diagonal', '3': 'vertical', '4': 'horizontal'}
+        while True:
+            subchoice = input()
+            if subchoice not in subchoice_dict.keys():
+                pass
+            else:
+                transpose_type = subchoice_dict[subchoice]
+                rows, columns, matrix_input = take_matrix_input("Enter matrix size: ", "Enter matrix:")
+                matrix_A = create_matrix_object(rows, columns, matrix_input)
+                result = matrix_A.transpose(transpose_type)
+                if result:
+                    print("The result is:")
+                    for row in result:
+                        print(*row)
+                break
 
     if choice == '0':
         break
