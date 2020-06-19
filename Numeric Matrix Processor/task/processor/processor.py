@@ -146,7 +146,8 @@ def determinant(matrix):
         return None
     else:
         columns = columns_set.pop()
-
+    if len(matrix) == 1:  # Edge-case
+        return matrix[0][0]
     if len(matrix) == 2:  # Base-case
         base_case = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]
         print(f"Base case: Determinant is {base_case} for {matrix}")
