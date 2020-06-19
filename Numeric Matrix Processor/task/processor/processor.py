@@ -1,3 +1,6 @@
+import copy
+
+
 class Matrix:
     def __init__(self, rows, columns, array):
         self.rows = rows
@@ -93,9 +96,6 @@ class Matrix:
             return matrix
 
 
-
-
-
 #matrix_test_1 = Matrix(2,3,[[1,0,17],[15,9,7]])
 #matrix_test_2 = Matrix(3,4,[[5,6,78,9],[29,31,47,1],[14,17,0,3]])
 #print(matrix_test_1 * matrix_test_2)
@@ -136,12 +136,42 @@ def create_matrix_object(rows, columns, matrix):
     return Matrix(rows, columns, matrix)
 
 
+def determinant(matrix):
+    if isinstance(matrix, Matrix):
+        matrix = matrix.elements
+    rows = len(matrix)
+    columns_set = set(len(row) for row in matrix)
+    if len(columns_set) > 1:
+        print("Column count is not consistent across rows")
+        return None
+    else:
+        columns = columns_set.pop()
+
+    if len(matrix) == 2:  # Base-case
+        base_case = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]
+        print(f"Base case: Determinant is {base_case} for {matrix}")
+        return base_case
+    else:
+        determinants = []
+        for n in range(columns):  # Will make a smaller matrix for each column by dropping elements of a copy
+            print(f"Recursing on row 0 and column {n} of matrix {matrix}")
+            # Make a deepcopy so nested lists are not edited in original when dropping elements
+            smaller_matrix = copy.deepcopy(matrix)
+            del smaller_matrix[0]  # Drop the row we are working through for Laplace Expansion
+            for row in smaller_matrix:
+                del row[n]  # Drop the column we are working through for Laplace Expansion
+            print(f"Passing smaller matrix {smaller_matrix} back to function through recursion")
+            determinants.append(matrix[0][n] * (-1) ** (n) * determinant(smaller_matrix))
+        return sum(determinants)
+
+
 # Main Program
 while True:
     print("1. Add matrices")
     print("2. Multiply matrix by a constant")
     print("3. Multiply matrices")
     print("4. Transpose matrix")
+    print("5. Calculate a determinant")
     print("0. Exit")
     choice = input('Your choice: ')
 
@@ -198,6 +228,14 @@ while True:
                     for row in result:
                         print(*row)
                 break
+
+    if choice == '5':
+        rows, columns, matrix_input = take_matrix_input("Enter matrix size: ", "Enter matrix:")
+        matrix_A = create_matrix_object(rows, columns, matrix_input)
+        result = determinant(matrix_A)
+        if result:
+            print("The result is:")
+            print(result)
 
     if choice == '0':
         break
