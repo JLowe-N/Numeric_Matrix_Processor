@@ -40,7 +40,7 @@ class Matrix:
             for m in range(self.rows):
                 row = []
                 for n in range(self.columns):
-                    row.append(self.elements[m][n] * constant)
+                    row.append(self.elements[m][n] * other)
                 matrix.append(row)
             return matrix
         if isinstance(other, Matrix):
@@ -150,20 +150,53 @@ def determinant(matrix):
         return matrix[0][0]
     if len(matrix) == 2:  # Base-case
         base_case = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]
-        print(f"Base case: Determinant is {base_case} for {matrix}")
+        #print(f"Base case: Determinant is {base_case} for {matrix}")
         return base_case
     else:
         determinants = []
         for n in range(columns):  # Will make a smaller matrix for each column by dropping elements of a copy
-            print(f"Recursing on row 0 and column {n} of matrix {matrix}")
+            #print(f"Recursing on row 0 and column {n} of matrix {matrix}")
             # Make a deepcopy so nested lists are not edited in original when dropping elements
             smaller_matrix = copy.deepcopy(matrix)
             del smaller_matrix[0]  # Drop the row we are working through for Laplace Expansion
             for row in smaller_matrix:
                 del row[n]  # Drop the column we are working through for Laplace Expansion
-            print(f"Passing smaller matrix {smaller_matrix} back to function through recursion")
+            #print(f"Passing smaller matrix {smaller_matrix} back to function through recursion")
             determinants.append(matrix[0][n] * (-1) ** (n) * determinant(smaller_matrix))
+        #print(f"Final determinant list {determinants}")
         return sum(determinants)
+
+def find_cofactors(matrix):
+    if isinstance(matrix, Matrix):
+        matrix = matrix.elements
+    rows = len(matrix)
+    columns_set = set(len(row) for row in matrix)
+    if len(columns_set) > 1:
+        print("Column count is not consistent across rows")
+        return None
+    else:
+        columns = columns_set.pop()
+    if len(matrix) == 1:  # Edge-case
+        return matrix[0][0]
+    if len(matrix) == 2:  # Base-case
+        base_case = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]
+        #print(f"Base case: Determinant is {base_case} for {matrix}")
+        return base_case
+    else:
+        cofactor_matrix = [[] for _ in range(rows)]
+        for m in range(rows):
+            for n in range(columns):  # Will make a smaller matrix for each column by dropping elements of a copy
+                #print(f"Recursing on row {m} and column {n} results so far {cofactor_matrix}")
+                # Make a deepcopy so nested lists are not edited in original when dropping elements
+                smaller_matrix = copy.deepcopy(matrix)
+                for row in smaller_matrix:
+                    del row[n]  # Drop the column we are working through for Laplace Expansion
+                del smaller_matrix[m]  # Drop the row we are working through for Laplace Expansion
+                #print(f"row {m} and column {n} smaller matrix {smaller_matrix}")
+                #print(f"Coefficient: {matrix[m][n]}, sign {(-1) ** ((m + 1) + (n + 1))}")
+                cofactor_matrix[m].append((-1) ** ((m + 1) + (n + 1)) * determinant(smaller_matrix))
+        return cofactor_matrix
+
 
 
 # Main Program
@@ -173,6 +206,7 @@ while True:
     print("3. Multiply matrices")
     print("4. Transpose matrix")
     print("5. Calculate a determinant")
+    print("6. Inverse matrix")
     print("0. Exit")
     choice = input('Your choice: ')
 
@@ -237,6 +271,26 @@ while True:
         if result:
             print("The result is:")
             print(result)
+
+    if choice == '6':
+        rows, columns, matrix_input = take_matrix_input("Enter matrix size: ", "Enter matrix:")
+        matrix_A = create_matrix_object(rows, columns, matrix_input)
+        det_A = determinant(matrix_A)
+        #print(det_A)
+        if det_A != 0:
+            cofactor_matrix = find_cofactors(matrix_A)
+            #print(cofactor_matrix)
+            cofactor_transpose = Matrix(rows, columns, Matrix(rows, columns, cofactor_matrix).transpose("main_diagonal"))
+            #print(type(cofactor_transpose))
+            #print(cofactor_transpose)
+            result = cofactor_transpose * (1 / det_A) # cofactor inverse
+            if result:
+                print("The result is:")
+                if result:
+                    for row in result:
+                        print(*row)
+        else:
+            print("This matrix doesn't have an inverse.")
 
     if choice == '0':
         break
